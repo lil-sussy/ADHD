@@ -1,6 +1,6 @@
 "use client"
 
-import { Draggable } from "react-beautiful-dnd"
+import { DraggableItem } from "@/components/DraggableItem"
 import { TaskCard } from "@/components/task-card"
 import type { Column, Task } from "@/types/todo"
 import { BrainCircuit, CalendarClock, Trash2 } from "lucide-react"
@@ -76,7 +76,7 @@ export function TaskColumn({
         )}
 
         {column.tasks.map((task, index) => (
-          <Draggable key={task.id} draggableId={task.id} index={index}>
+          <DraggableItem key={task.id} id={task.id} index={index}>
             {(provided, snapshot) => (
               <div
                 ref={provided.innerRef}
@@ -98,7 +98,7 @@ export function TaskColumn({
                 />
               </div>
             )}
-          </Draggable>
+          </DraggableItem>
         ))}
         {provided.placeholder}
       </div>

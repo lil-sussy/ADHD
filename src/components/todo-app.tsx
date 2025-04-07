@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { DragDropContext, Droppable, DropResult, DroppableLocation } from "react-beautiful-dnd"
+import type { DropResult } from "react-beautiful-dnd"
+import { DndProvider, Droppable } from "@/components/DndProvider"
 import { TaskColumn } from "@/components/task-column"
 import { TaskDetail } from "@/components/task-detail"
 import { Button } from "@/components/ui/button"
@@ -230,7 +231,7 @@ export function TodoApp() {
       if (soundEnabled) {
         const successSound = new Audio("/sounds/success.mp3")
         successSound.volume = 0.5
-        successSound.play()
+        void successSound.play()
       }
 
       setTimeout(() => setShowConfetti(false), 3000)
@@ -261,7 +262,7 @@ export function TodoApp() {
     if (soundEnabled) {
       const popSound = new Audio("/sounds/pop.mp3")
       popSound.volume = 0.5
-      popSound.play()
+      void popSound.play()
     }
   }
 
@@ -282,7 +283,7 @@ export function TodoApp() {
     if (soundEnabled) {
       const saveSound = new Audio("/sounds/save.mp3")
       saveSound.volume = 0.5
-      saveSound.play()
+      void saveSound.play()
     }
   }
 
@@ -298,7 +299,7 @@ export function TodoApp() {
     if (soundEnabled) {
       const deleteSound = new Audio("/sounds/delete.mp3")
       deleteSound.volume = 0.5
-      deleteSound.play()
+      void deleteSound.play()
     }
   }
 
@@ -320,7 +321,7 @@ export function TodoApp() {
     if (soundEnabled) {
       const clickSound = new Audio("/sounds/click.mp3")
       clickSound.volume = 0.3
-      clickSound.play()
+      void clickSound.play()
     }
   }
 
@@ -361,11 +362,11 @@ export function TodoApp() {
     if (soundEnabled) {
       const offSound = new Audio("/sounds/switch-off.mp3")
       offSound.volume = 0.5
-      offSound.play()
+      void offSound.play()
     } else {
       const onSound = new Audio("/sounds/switch-on.mp3")
       onSound.volume = 0.5
-      onSound.play()
+      void onSound.play()
     }
   }
 
@@ -375,7 +376,7 @@ export function TodoApp() {
     if (soundEnabled) {
       const switchSound = new Audio("/sounds/switch.mp3")
       switchSound.volume = 0.5
-      switchSound.play()
+      void switchSound.play()
     }
   }
 
@@ -397,7 +398,7 @@ export function TodoApp() {
     if (soundEnabled) {
       const collapseSound = new Audio("/sounds/collapse.mp3")
       collapseSound.volume = 0.5
-      collapseSound.play()
+      void collapseSound.play()
     }
 
     toast({
@@ -416,7 +417,7 @@ export function TodoApp() {
     if (soundEnabled) {
       const clickSound = new Audio("/sounds/click.mp3")
       clickSound.volume = 0.3
-      clickSound.play()
+      void clickSound.play()
     }
   }
 
@@ -434,7 +435,7 @@ export function TodoApp() {
     if (soundEnabled) {
       const loginSound = new Audio("/sounds/success.mp3")
       loginSound.volume = 0.5
-      loginSound.play()
+      void loginSound.play()
     }
 
     toast({
@@ -451,7 +452,7 @@ export function TodoApp() {
     if (soundEnabled) {
       const logoutSound = new Audio("/sounds/switch-off.mp3")
       logoutSound.volume = 0.5
-      logoutSound.play()
+      void logoutSound.play()
     }
 
     toast({
@@ -614,29 +615,31 @@ export function TodoApp() {
           <div className="lg:col-span-3">
             {showMemes && <MemeGallery />}
 
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
-                {columns.map((column) => (
-                  <Droppable 
-                    key={column.id} 
-                    droppableId={column.id}
-                    isDropDisabled={false}
-                    isCombineEnabled={false}
-                  >
-                    {(provided) => (
-                      <TaskColumn
-                        column={column}
-                        provided={provided}
-                        onTaskClick={setSelectedTask}
-                        onAdjustTime={adjustTaskTime}
-                        collapsedCards={collapsedCards}
-                        onToggleCollapse={toggleCardCollapse}
-                      />
-                    )}
-                  </Droppable>
-                ))}
-              </div>
-            </DragDropContext>
+            <DndProvider onDragEnd={handleDragEnd}>
+              {(droppableProps) => (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
+                  {columns.map((column) => (
+                    <Droppable 
+                      key={column.id} 
+                      droppableId={column.id}
+                      isDropDisabled={false}
+                      isCombineEnabled={false}
+                    >
+                      {(provided) => (
+                        <TaskColumn
+                          column={column}
+                          provided={provided}
+                          onTaskClick={setSelectedTask}
+                          onAdjustTime={adjustTaskTime}
+                          collapsedCards={collapsedCards}
+                          onToggleCollapse={toggleCardCollapse}
+                        />
+                      )}
+                    </Droppable>
+                  ))}
+                </div>
+              )}
+            </DndProvider>
           </div>
         </div>
       </div>
