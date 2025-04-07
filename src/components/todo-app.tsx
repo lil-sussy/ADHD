@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { DragDropContext, Droppable } from "react-beautiful-dnd"
+import { DragDropContext, Droppable, DropResult, DroppableLocation } from "react-beautiful-dnd"
 import { TaskColumn } from "@/components/task-column"
 import { TaskDetail } from "@/components/task-detail"
 import { Button } from "@/components/ui/button"
@@ -59,7 +59,12 @@ export function TodoApp() {
   useEffect(() => {
     const savedColumns = localStorage.getItem("adhd-todo-columns")
     if (savedColumns) {
-      setColumns(JSON.parse(savedColumns))
+      try {
+        const parsedColumns = JSON.parse(savedColumns) as Column[]
+        setColumns(parsedColumns)
+      } catch (error) {
+        console.error("Failed to parse columns from localStorage", error)
+      }
     }
 
     const savedCompleted = localStorage.getItem("adhd-todo-completed")
@@ -69,24 +74,40 @@ export function TodoApp() {
 
     const savedAppName = localStorage.getItem("adhd-app-name")
     if (savedAppName) {
-      setAppName(JSON.parse(savedAppName))
+      try {
+        setAppName(JSON.parse(savedAppName) as string)
+      } catch (error) {
+        console.error("Failed to parse app name from localStorage", error)
+      }
     }
 
     const savedSoundSetting = localStorage.getItem("adhd-sound-enabled")
     if (savedSoundSetting !== null) {
-      setSoundEnabled(JSON.parse(savedSoundSetting))
+      try {
+        setSoundEnabled(JSON.parse(savedSoundSetting) as boolean)
+      } catch (error) {
+        console.error("Failed to parse sound setting from localStorage", error)
+      }
     }
 
     const savedCollapsedState = localStorage.getItem("adhd-collapsed-cards")
     if (savedCollapsedState) {
-      setCollapsedCards(JSON.parse(savedCollapsedState))
+      try {
+        setCollapsedCards(JSON.parse(savedCollapsedState) as Record<string, boolean>)
+      } catch (error) {
+        console.error("Failed to parse collapsed state from localStorage", error)
+      }
     }
 
     const savedLoginState = localStorage.getItem("adhd-login-state")
     if (savedLoginState) {
-      const { isLoggedIn, username } = JSON.parse(savedLoginState)
-      setIsLoggedIn(isLoggedIn)
-      setUsername(username)
+      try {
+        const loginData = JSON.parse(savedLoginState) as { isLoggedIn: boolean; username: string }
+        setIsLoggedIn(loginData.isLoggedIn)
+        setUsername(loginData.username)
+      } catch (error) {
+        console.error("Failed to parse login state from localStorage", error)
+      }
     }
   }, [])
 
@@ -133,7 +154,7 @@ export function TodoApp() {
     return () => clearInterval(interval)
   }, [])
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     const { source, destination } = result
 
     // Dropped outside a droppable area
@@ -203,7 +224,7 @@ export function TodoApp() {
       toast({
         title: "Task moved!",
         description: messages[Math.floor(Math.random() * messages.length)],
-        variant: "success",
+        variant: "default",
       })
 
       if (soundEnabled) {
@@ -419,7 +440,7 @@ export function TodoApp() {
     toast({
       title: "Logged in with Discord!",
       description: "Your tasks are now synced to the cloud. Not really, but imagine they are!",
-      variant: "success",
+      variant: "default",
     })
   }
 
@@ -593,10 +614,15 @@ export function TodoApp() {
           <div className="lg:col-span-3">
             {showMemes && <MemeGallery />}
 
-            <DragDropContext onDragEnd={handleDragEnd} className="relative">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative">
                 {columns.map((column) => (
-                  <Droppable key={column.id} droppableId={column.id}>
+                  <Droppable 
+                    key={column.id} 
+                    droppableId={column.id}
+                    isDropDisabled={false}
+                    isCombineEnabled={false}
+                  >
                     {(provided) => (
                       <TaskColumn
                         column={column}
